@@ -26,6 +26,7 @@ export default function HomePage() {
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
+    const storedUser = localStorage.getItem('user');
     dispatch(setUserFromStorage());
     if (!isLoggedIn) {
       router.push('/');

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { logout, setUserFromStorage } from '@/store/userSlice';
 import { RootState } from '@/store/store';
 import BottomNavbar from '@/components/BottomNavbar';
+import FipeTest from '@/components/fipeTest';
 
 export default function HomePage() {
   const dispatch = useDispatch();
@@ -28,9 +29,10 @@ export default function HomePage() {
   }, [dispatch, isLoggedIn, router]);
 
   return (
+    
     <div className="pb-20">
       <h1>Welcome to the Home Page!</h1>
-      <p>This is a protected page for logged-in users only.</p>
+      <p>This is a protected page for logged-in users only.</p>      
 
       <div className="my-4">
         <button
@@ -48,6 +50,8 @@ export default function HomePage() {
       </div>
 
       <BottomNavbar />
+      <FipeTest />
     </div>
   );
+  
 }

@@ -43,14 +43,14 @@ export default function Dashboard() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '89.6vh',
         backgroundColor: '#1a1a1a',
         padding: '40px',
         fontFamily: "'Orbitron', sans-serif",
         color: '#eee',
         display: 'flex',
         flexDirection: 'column',
-        maxWidth: '900px',
+        maxWidth: '100%',
         margin: '0 auto',
       }}
     >

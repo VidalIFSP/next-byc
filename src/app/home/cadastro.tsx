@@ -19,7 +19,7 @@ export default function RegisterPage() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '93.9vh',
         backgroundColor: '#121212',
         display: 'flex',
         justifyContent: 'center',
@@ -32,12 +32,12 @@ export default function RegisterPage() {
         {`
           @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
           @media (max-width: 480px) {
-            .register-box {
+            .login-box {
               width: 100% !important;
               padding: 24px !important;
               border-radius: 8px !important;
             }
-            .register-title {
+            .login-title {
               font-size: 24px !important;
             }
             input, button {
@@ -106,7 +106,7 @@ export default function RegisterPage() {
               required
               placeholder="Seu nome completo"
               style={{
-                width: '100%',
+                width: '92%',
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #555',
@@ -133,7 +133,7 @@ export default function RegisterPage() {
               required
               placeholder="seuemail@exemplo.com"
               style={{
-                width: '100%',
+                width: '92%',
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #555',
@@ -160,7 +160,7 @@ export default function RegisterPage() {
               required
               placeholder="Digite sua senha"
               style={{
-                width: '100%',
+                width: '92%',
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #555',
@@ -187,7 +187,7 @@ export default function RegisterPage() {
               required
               placeholder="Confirme sua senha"
               style={{
-                width: '100%',
+                width: '92%',
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #555',
@@ -225,21 +225,18 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={!acceptTerms}
             style={{
               width: '100%',
-              backgroundColor: acceptTerms ? '#d32f2f' : '#7a2929',
+              backgroundColor: '#d32f2f',
               color: 'white',
               padding: '14px',
               borderRadius: '10px',
               border: 'none',
-              cursor: acceptTerms ? 'pointer' : 'not-allowed',
+              cursor: 'pointer',
               fontWeight: '700',
               fontSize: '16px',
               textTransform: 'uppercase',
-              boxShadow: acceptTerms
-                ? '0 4px 12px rgba(211, 47, 47, 0.6)'
-                : 'none',
+              boxShadow: '0 4px 12px rgba(211, 47, 47, 0.6)',
               transition: 'background-color 0.3s ease',
             }}
           >

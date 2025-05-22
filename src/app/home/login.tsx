@@ -16,7 +16,7 @@ export default function LoginPage() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '93.9vh',
         backgroundColor: '#121212',
         display: 'flex',
         justifyContent: 'center',
@@ -102,7 +102,7 @@ export default function LoginPage() {
               required
               placeholder="seuemail@exemplo.com"
               style={{
-                width: '100%',
+                width: '92%',
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #555',
@@ -129,7 +129,7 @@ export default function LoginPage() {
               required
               placeholder="Digite sua senha"
               style={{
-                width: '100%',
+                width: '92%',
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #555',

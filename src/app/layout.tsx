@@ -5,6 +5,7 @@ import ClientWrapper from './ClientWrapper'
 import LoginPage from './home/login'
 import Dashboard from './home/dashboard'
 import ListaCompras from './home/lista'
+import RegisterPage from './home/cadastro'
 
 const inter = Inter({ subsets: ['latin'] })
 

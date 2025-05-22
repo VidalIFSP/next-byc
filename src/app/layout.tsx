@@ -2,10 +2,6 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import ClientWrapper from './ClientWrapper'
-import LoginPage from './home/login'
-import Dashboard from './home/dashboard'
-import ListaCompras from './home/lista'
-import RegisterPage from './home/cadastro'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ClientWrapper><ListaCompras/></ClientWrapper>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   )

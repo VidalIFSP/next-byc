@@ -1,84 +1,93 @@
 'use client';
-
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/Footer';
-import { useDispatch, useSelector } from 'react-redux';
-import { login, setUserFromStorage } from '@/store/userSlice';
-import { RootState } from '@/store/store';
+import { useForm } from 'react-hook-form';
+import styles from './styles';
 
-export default function HomePage() {
+type LoginFormInputs = {
+  email: string;
+  password: string;
+  remember: boolean;
+};
+
+export default function LoginPage() {
   const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInputs>();
 
-  const dispatch = useDispatch();
-
-  const handleLogin = () => {
-    const mockUser = {
-      id: '123',
-      name: 'Laidens é autista',
-      email: 'user@example.com',
-      token: 'mock-jwt-token',
-    };
-    dispatch(login(mockUser));
-    router.push('/home');
+  const onSubmit = (data: LoginFormInputs) => {
+    console.log(data);
+    router.push('/dashboard');
   };
 
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    dispatch(setUserFromStorage());
-    if (!isLoggedIn) {
-      router.push('/');
-    }
-  }, [dispatch, isLoggedIn, router]);
-
-  if (isLoggedIn === null) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-between">
-      <header className="bg-white p-6 shadow-md">
-        <div className="container mx-auto flex justify-center">
-          <img src="/logo.png" alt="Logo" className="h-12" />
-        </div>
-      </header>
+    <div style={styles.wrapper}>
+      <div style={styles.box}>
+        <h1 style={styles.title}>BYC - Login</h1>
 
-      <main className="flex-grow flex items-center justify-center">
-        {!isLoggedIn ? (
-          <div className="text-center p-6 bg-white rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold mb-4">Welcome to Our App!</h1>
-            <p className="text-gray-600 mb-6">Please log in, sign up, or continue as a guest.</p>
-            <button
-              onClick={handleLogin}
-              className="w-full py-2 mb-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Log in
-            </button>
-            <button
-              onClick={handleLogin}
-              className="w-full py-2 mb-4 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Sign up
-            </button>
-            <button
-              onClick={handleLogin}
-              className="w-full py-2 mb-4 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-            >
-              Continue as Guest
-            </button>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div style={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="seuemail@exemplo.com"
+              {...register('email', { required: 'Email é obrigatório' })}
+              style={{
+                ...styles.input,
+                ...(errors.email ? styles.inputError : {}),
+              }}
+            />
+            {errors.email && <p style={styles.errorText}>{errors.email.message}</p>}
           </div>
-        ) : (
-          <p className="text-xl text-gray-700">You are logged in! Redirecting to home...</p>
-        )}
-      </main>
 
-      <Footer />
+          <div style={styles.formGroup}>
+            <label htmlFor="password">Senha</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Digite sua senha"
+              {...register('password', { required: 'Senha é obrigatória' })}
+              style={{
+                ...styles.input,
+                ...(errors.password ? styles.inputError : {}),
+              }}
+            />
+            {errors.password && <p style={styles.errorText}>{errors.password.message}</p>}
+          </div>
+
+          <div style={styles.formExtras}>
+            <label>
+              <input type="checkbox" {...register('remember')} />
+              Lembrar senha
+            </label>
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              style={styles.link}
+            >
+              Esqueceu a senha?
+            </a>
+          </div>
+
+          <button type="submit" style={styles.submitButton}>
+            Entrar
+          </button>
+        </form>
+
+        <p style={styles.registerText}>
+          Ainda não tem uma conta?{' '}
+          <a
+            href="#"
+            onClick={() => router.push('/sign-up')}
+            style={styles.link}
+          >
+            Cadastre-se
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

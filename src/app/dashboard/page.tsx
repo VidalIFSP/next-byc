@@ -105,12 +105,12 @@ export default function Dashboard() {
   };
 
   const handleModelChange = (codigo: string) => {
-    const model = models.find(m => m.codigo === codigo) || null;
+    const model = models.find(m => String(m.codigo) === codigo) || null;
     setSelectedModelo(model);
   };
 
   const handleYearChange = (codigo: string) => {
-    const year = years.find(y => y.codigo === codigo) || null;
+    const year = years.find(y => String(y.codigo) === codigo) || null;
     setSelectedAno(year);
   };
 

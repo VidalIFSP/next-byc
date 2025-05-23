@@ -189,7 +189,7 @@ export default function Dashboard() {
           disabled={years.length === 0}
         >
           {!selectedAno && <option value="" disabled>Selecione um ano</option>}
-          {years.map((year) => (
+          {years.length > 0 && years.map((year) => (
             <option key={year.codigo} value={year.codigo}>
               {year.nome}
             </option>

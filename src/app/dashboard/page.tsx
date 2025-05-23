@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import CarCard from '../components/car-card/car-card';
 import { addCar } from '@/store/carSlice';
+import { usePrice } from '../hooks/usePrice';
 
 const listaItemStyle = (isCarros: boolean): CSSProperties => ({
   marginBottom: '6px',
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const { fetchBrands } = useBrands();
   const { fetchModels } = useModels();
   const { fetchYears } = useYears();
+  const { fetchPrice } = usePrice();
 
   const [brands, setBrands] = useState<{ codigo: string; nome: string }[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<{ codigo: string; nome: string } | null>(null);
@@ -112,20 +114,14 @@ export default function Dashboard() {
     setSelectedAno(year);
   };
 
-  const handleAddCar = () => {
-    const newCar: PrecoResponse = {
-      TipoVeiculo: 1,
-      Valor: '45000',
-      Marca: 'Ford',
-      Modelo: 'Mustang',
-      AnoModelo: 2024,
-      Combustivel: 'Gasoline',
-      CodigoFipe: '54321',
-      MesReferencia: '05-2025',
-      SiglaCombustivel: 'G',
-    };
-  
-    dispatch(addCar(newCar));
+  const handleAddCar = async () => {
+    if (selectedBrand && selectedModelo && selectedAno) {
+      const newCar = await fetchPrice('carros', selectedBrand.codigo, selectedModelo.codigo, selectedAno.codigo)
+      if (newCar)
+        dispatch(addCar(newCar));
+    } else {
+      return;
+    }
   };
 
   return (

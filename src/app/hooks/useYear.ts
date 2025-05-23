@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { AnoResponse } from '../interfaces/fipe';
 import { VehicleType, getAnos } from '../services/fipe';
 
-export function useYears(vehicleType: VehicleType, brandCode: string, modelCode: string) {
-  const [years, setYears] = useState<AnoResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export function useYears() {
 
-  useEffect(() => {
-    if (!vehicleType || !brandCode || !modelCode) return;
+  const fetchYears = useCallback(
+    async (
+      vehicleType: VehicleType,
+      brandCode: string,
+      modelCode: string
+    ): Promise<AnoResponse[]> => {
+      if (!vehicleType || !brandCode || !modelCode) return [];
+      try {
+        const data = await getAnos(vehicleType, brandCode, modelCode);
+        return data;
+      } catch (err) {
+        return [];
+      }
+    },
+    []
+  );
 
-    setLoading(true);
-    getAnos(vehicleType, brandCode, modelCode)
-      .then(setYears)
-      .catch(setError)
-      .finally(() => setLoading(false));
-  }, [vehicleType, brandCode, modelCode]);
-
-  return { years, loading, error };
+  return { fetchYears };
 }

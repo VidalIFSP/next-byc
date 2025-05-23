@@ -1,10 +1,10 @@
 'use client';
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice';
+import carReducer from './carSlice';
 
 const store = configureStore({
   reducer: {
-    user: userReducer,
+    car: carReducer,
   },
 });
 

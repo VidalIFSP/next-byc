@@ -1,46 +1,131 @@
 'use client';
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 import styles from './styles';
-import { VehicleType } from '../services/fipe';
+import router from 'next/router';
+import { useBrands } from '../hooks/useBrands';
+import { useModels } from '../hooks/useModel';
+import { useYears } from '../hooks/useYear';
+import { AnoResponse, PrecoResponse } from '../interfaces/fipe';
+import Link from 'next/link';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store/store';
+import CarCard from '../components/car-card/car-card';
+import { addCar } from '@/store/carSlice';
 
-type Favorito = {
-  id: string;
-  tipo: VehicleType;
-  marca: string;
-  modelo: string;
-  ano: string;
-  preco: string;
-};
-
-export const listaItemStyle = (isCarros: boolean): CSSProperties => ({
+const listaItemStyle = (isCarros: boolean): CSSProperties => ({
   marginBottom: '6px',
   color: isCarros ? '#e63946' : '#ccc',
 });
 
 export default function Dashboard() {
-  const [favoritos, setFavoritos] = useState<Favorito[]>([
-    {
-      id: 'carros-001-002-2019',
-      tipo: 'carros',
-      marca: 'Chevrolet',
-      modelo: 'Onix',
-      ano: '2019',
-      preco: 'R$ 48.000,00',
-    },
-    {
-      id: 'motos-003-005-2020',
-      tipo: 'motos',
-      marca: 'Honda',
-      modelo: 'CB 500',
-      ano: '2020',
-      preco: 'R$ 25.000,00',
-    },
-  ]);
+  const { fetchBrands } = useBrands();
+  const { fetchModels } = useModels();
+  const { fetchYears } = useYears();
 
-  const estatisticas = {
-    carros: favoritos.filter(f => f.tipo === 'carros').length,
-    motos: favoritos.filter(f => f.tipo === 'motos').length,
-    caminhões: favoritos.filter(f => f.tipo === 'caminhoes').length,
+  const [brands, setBrands] = useState<{ codigo: string; nome: string }[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState<{ codigo: string; nome: string } | null>(null);
+  const [selectedModelo, setSelectedModelo] = useState<{ codigo: string; nome: string } | null>(null);
+  const [selectedAno, setSelectedAno] = useState<{ codigo: string; nome: string } | null>(null);
+
+  const [models, setModels] = useState<{ codigo: string; nome: string }[]>([]);
+  const [years, setYears] = useState<AnoResponse[]>([]);
+  const [isLoadingBrands, setIsLoadingBrands] = useState(true);
+  const [isErrorBrands, setIsErrorBrands] = useState(false);
+  const cars = useSelector((state: RootState) => state.car.cars);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setIsLoadingBrands(true);
+        const fetchedBrands = await fetchBrands('carros');
+        setBrands(fetchedBrands);
+        setSelectedBrand(fetchedBrands[0] || null);
+        setIsErrorBrands(false);
+      } catch (err) {
+        setBrands([]);
+        setSelectedBrand(null);
+        setIsErrorBrands(true);
+      } finally {
+        setIsLoadingBrands(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedBrand) {
+      setModels([]);
+      setSelectedModelo(null);
+      setYears([]);
+      setSelectedAno(null);
+      return;
+    }
+
+    (async () => {
+      try {
+        const fetchedModels = await fetchModels('carros', selectedBrand.codigo);
+        setModels(fetchedModels);
+        setSelectedModelo(null);
+        setYears([]);
+        setSelectedAno(null);
+      } catch (error) {
+        setModels([]);
+        setSelectedModelo(null);
+        setYears([]);
+        setSelectedAno(null);
+      }
+    })();
+  }, [selectedBrand, fetchModels]);
+
+
+  useEffect(() => {
+    if (!selectedBrand || !selectedModelo) {
+      setYears([]);
+      setSelectedAno(null);
+      return;
+    }
+
+    (async () => {
+      try {
+        const fetchedYears = await fetchYears('carros', selectedBrand.codigo, selectedModelo.codigo);
+        setYears(fetchedYears);
+        setSelectedAno(null);
+      } catch (error) {
+        setYears([]);
+        setSelectedAno(null);
+      }
+    })();
+  }, [selectedBrand, selectedModelo, fetchYears]);
+
+  const handleBrandChange = (codigo: string) => {
+    const brand = brands.find(b => b.codigo === codigo) || null;
+    setSelectedBrand(brand);
+  };
+
+  const handleModelChange = (codigo: string) => {
+    const model = models.find(m => m.codigo === codigo) || null;
+    setSelectedModelo(model);
+  };
+
+  const handleYearChange = (codigo: string) => {
+    const year = years.find(y => y.codigo === codigo) || null;
+    setSelectedAno(year);
+  };
+
+  const handleAddCar = () => {
+    const newCar: PrecoResponse = {
+      TipoVeiculo: 1,
+      Valor: '45000',
+      Marca: 'Ford',
+      Modelo: 'Mustang',
+      AnoModelo: 2024,
+      Combustivel: 'Gasoline',
+      CodigoFipe: '54321',
+      MesReferencia: '05-2025',
+      SiglaCombustivel: 'G',
+    };
+  
+    dispatch(addCar(newCar));
   };
 
   return (
@@ -48,86 +133,99 @@ export default function Dashboard() {
       <h1 style={styles.title}>Bem-vindo ao BYC</h1>
       <section style={styles.resumoSection}>
         <div style={styles.resumoBox}>
-          <h2 style={styles.resumoTitle}>Total de Favoritos</h2>
-          <p style={styles.resumoNumber}>{favoritos.length}</p>
-        </div>
-
-        <div style={styles.resumoBox}>
-          <h2 style={styles.resumoTitle}>Carros por Tipo</h2>
-          <ul style={styles.listaTipos}>
-            {Object.entries(estatisticas).map(([tipo, qtd]) => (
-              <li
-                key={tipo}
-                style={listaItemStyle(tipo === 'carros')}
-              >
-                {tipo.charAt(0).toUpperCase() + tipo.slice(1)}: {qtd}
-              </li>
-            ))}
-          </ul>
+          <h2 style={styles.resumoTitle}>Total de Carros</h2>
+          <p style={styles.resumoNumber}>{cars.length}</p>
         </div>
       </section>
-      <section>
-        <h2 style={styles.favoritosSectionTitle}>Últimos Favoritos</h2>
 
-        <div style={styles.favoritosGrid}>
-          {favoritos.length === 0 && (
-            <p style={styles.noFavoritosText}>
-              Você ainda não adicionou carros aos favoritos.
-            </p>
-          )}
+      <section style={{ marginTop: 40 }}>
+        <h2 style={styles.resumoTitle}>Últimos carros adicionados</h2>
+        {cars.length === 0 && <p>Nenhum carro adicionado ainda.</p>}
+        {cars.length > 0 && (
+          <div>
+            {cars
+              .slice(-2)
+              .reverse()
+              .map((car) => (
+                <CarCard key={car.CodigoFipe} fav={car} />
+              ))}
+          </div>
+        )}
+      </section>
 
-          {favoritos.map(fav => (
-            <div key={fav.id} style={styles.favoritoCard}>
-              <div>
-                <h3 style={styles.favoritoTitle}>
-                  {fav.marca} {fav.modelo}
-                </h3>
-                <p style={styles.favoritoAno}>Ano: {fav.ano}</p>
-                <p style={styles.favoritoPreco}>{fav.preco}</p>
-              </div>
+      <section style={styles.dropdownContainerStyle}>
+        <select
+          style={styles.dropdownStyle}
+          value={selectedBrand?.codigo || ''}
+          onChange={(e) => handleBrandChange(e.target.value)}
+          disabled={isLoadingBrands || !!isErrorBrands}
+        >
+          {!selectedBrand && <option value="" disabled>Selecione uma marca</option>}
+          {isLoadingBrands && <option>Carregando marcas...</option>}
+          {isErrorBrands && <option>Erro ao carregar marcas</option>}
+          {!isLoadingBrands &&
+            !isErrorBrands &&
+            brands.map((brand) => (
+              <option key={brand.codigo} value={brand.codigo}>
+                {brand.nome}
+              </option>
+            ))}
+        </select>
 
-              <button
-                style={styles.favoritoButton}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#a0272f')
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#e63946')
-                }
-                onClick={() =>
-                  alert(`Você clicou para ver detalhes do ${fav.marca} ${fav.modelo}`)
-                }
-              >
-                Ver detalhes
-              </button>
-            </div>
+        <select
+          style={styles.dropdownStyle}
+          value={selectedModelo?.codigo || ''}
+          onChange={(e) => handleModelChange(e.target.value)}
+          disabled={models.length === 0}
+        >
+          {!selectedModelo && <option value="" disabled>Selecione um modelo</option>}
+          {models.map((model) => (
+            <option key={model.codigo} value={model.codigo}>
+              {model.nome}
+            </option>
           ))}
-        </div>
+        </select>
+
+        <select
+          style={styles.dropdownStyle}
+          value={selectedAno?.codigo || ''}
+          onChange={(e) => handleYearChange(e.target.value)}
+          disabled={years.length === 0}
+        >
+          {!selectedAno && <option value="" disabled>Selecione um ano</option>}
+          {years.map((year) => (
+            <option key={year.codigo} value={year.codigo}>
+              {year.nome}
+            </option>
+          ))}
+        </select>
       </section>
 
       <section style={styles.acoesSection}>
         <button
           style={styles.btnPrimary}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = '#a0272f')
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = '#e63946')
-          }
-          onClick={() => alert('Ir para Lista de Compras (Favoritos)')}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#a0272f')}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#e63946')}
+          onClick={handleAddCar}
+          disabled={!selectedBrand || !selectedModelo || !selectedAno}
         >
-          Lista de Compras
+          Comprar
         </button>
+
+        <Link
+          style={styles.btnPrimary}
+          href='/terms-of-use'
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#a0272f')}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#e63946')}
+        >
+          Termos de Uso
+        </Link>
 
         <button
           style={styles.btnSecondary}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = '#666')
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = '#444')
-          }
-          onClick={() => alert('Logout (simulação)')}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#666')}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#444')}
+          onClick={() => router.push('/')}
         >
           Logout
         </button>

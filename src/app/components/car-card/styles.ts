@@ -78,6 +78,7 @@ const styles: Record<string, CSSProperties> = {
     backgroundColor: '#2a2a2a',
     borderRadius: '12px',
     padding: '16px',
+    margin: '15px',
     boxShadow: '0 4px 12px rgba(230, 57, 70, 0.3)',
     display: 'flex',
     flexDirection: 'column',

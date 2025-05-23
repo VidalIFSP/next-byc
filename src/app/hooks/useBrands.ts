@@ -1,19 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MarcaResponse } from '../interfaces/fipe';
 import { VehicleType, getMarcas } from '../services/fipe';
 
-export function useBrands(vehicleType: VehicleType) {
-  const [brands, setBrands] = useState<MarcaResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export function useBrands() {
 
-  useEffect(() => {
-    setLoading(true);
-    getMarcas(vehicleType)
-      .then(setBrands)
-      .catch(setError)
-      .finally(() => setLoading(false));
-  }, [vehicleType]);
+  const fetchBrands = useCallback(
+    async (vehicleType: VehicleType): Promise<MarcaResponse[]> => {
+      if (!vehicleType) return [];
+      try {
+        const data = await getMarcas(vehicleType);
+        return data;
+      } catch (err) {
+        return [];
+      }
+    },
+    []
+  );
 
-  return { brands, loading, error };
+  return { fetchBrands };
 }

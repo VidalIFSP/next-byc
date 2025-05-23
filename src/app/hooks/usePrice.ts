@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { PrecoResponse } from '../interfaces/fipe';
 import { VehicleType, getPreco } from '../services/fipe';
 
@@ -8,19 +8,17 @@ export function usePrice(
   modelCode: string,
   yearCode: string
 ) {
-  const [price, setPrice] = useState<PrecoResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    if (!vehicleType || !brandCode || !modelCode || !yearCode) return;
+  const fetchPrice = useCallback(async (): Promise<PrecoResponse | undefined> => {
+    if (!vehicleType || !brandCode || !modelCode || !yearCode) return undefined;
 
-    setLoading(true);
-    getPreco(vehicleType, brandCode, modelCode, yearCode)
-      .then(setPrice)
-      .catch(setError)
-      .finally(() => setLoading(false));
+    try {
+      const data = await getPreco(vehicleType, brandCode, modelCode, yearCode);
+      return data
+    } catch (err) {
+      console.warn(err);
+    }
   }, [vehicleType, brandCode, modelCode, yearCode]);
 
-  return { price, loading, error };
+  return { fetchPrice };
 }
